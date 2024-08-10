@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  TECNICIANC
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  username          String?             @unique @db.VarChar(150)
+  password          String?             @db.VarChar(75)
+  role              Role                @default(USER)
+  device            Device[]
+  repair            Repair[]
+  user              UserData[]
+  tecdnicianc       Tecdnicianc[]
+  tecdniciancrecord TecdniciancRecord[]
+
+  @@map("user")
+}
+
+model UserData {
+  id           Int      @id @default(autoincrement())
+  usernamedata String?
+  surname      String
+  phone        String
+  appointment  String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId       Int      @map("user_id")
+  repair       Repair[]
+
+
+  @@map("userdata")
+}
+
+model Device {
+  id                Int                 @id @default(autoincrement())
+  Equipmentnumber   String
+  type              String?
+  brand             String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId            Int                 @map("user_id")
+  repair            Repair[]
+
+
+  @@map("device")
+}
+
+model Repair {
+  id                Int                 @id @default(autoincrement())
+  detailrepair      String
+  requesDate        DateTime
+  status            String
+  statusUser        String
+  other             String
+  buding            String
+  room              String
+  EditRepairDate    DateTime
+  DatailEdit        String
+  TeEdit            String
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId            Int                 @map("user_id")
+  userdata          UserData            @relation(fields: [userdataId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userdataId        Int                 @map("userdata_id")
+  device            Device              @relation(fields: [deviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  deviceId          Int                 @map("device_id")
+  tecdniciancrecord TecdniciancRecord[]
+  tecdnicianRepair  String
+
+  @@map("repair")
+}
+
+model Tecdnicianc {
+  id     Int    @id @default(autoincrement())
+  name   String
+  phone  String
+  Skill  String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int    @map("loginuser_id")
+
+  @@map("tecdnicianc")
+}
+
+model TecdniciancRecord {
+  id       Int    @id @default(autoincrement())
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId   Int    @map("loginuser_id")
+  repair   Repair @relation(fields: [repairId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  repairId Int    @map("repair_id")
+  
+
+
+  @@map("tecdniciancrecord")
+}
